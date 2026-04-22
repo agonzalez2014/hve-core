@@ -175,12 +175,48 @@ If information is missing, use `<insufficient knowledge>` and add targeted quest
 When the team requests PowerPoint output, accepts a build offer, or accepts the mandatory post-snapshot checkpoint:
 
 1. Generate `content.yaml` slide artifacts from canonical markdown using the customer-card-render skill.
-2. Detect the available shell environment before invoking the build pipeline:
-   - Check whether `pwsh` is available by running `pwsh --version` or equivalent detection.
-   - If `pwsh` is available, invoke `Invoke-PptxPipeline.ps1` from the PowerPoint skill.
-   - If `pwsh` is not available but a POSIX shell (`bash`, `sh`) is available, invoke `invoke-pptx-pipeline.sh` instead.
-   - If neither `pwsh` nor a shell environment is available, stop and inform the user: "I can't generate the PowerPoint without either PowerShell 7 (pwsh) or a shell environment to run the build script. Please install PowerShell 7 or run this in a bash-compatible environment."
-3. Do not attempt the build step and do not silently fail if the required runtime is absent.
+
+2. Determine the active shell runtime and follow the appropriate build path.
+
+### PowerShell Runtime Path
+
+When the active runtime is a PowerShell terminal:
+
+1. Invoke `Invoke-PptxPipeline.ps1` directly (do not prefix with `pwsh`; the script runs in the current session).
+2. If `Invoke-PptxPipeline.ps1` fails specifically because of an outdated PowerShell version (for example, `#requires` version mismatch):
+   - Ask the user for explicit approval to upgrade PowerShell.
+   - If the user approves: upgrade PowerShell, verify the version, then retry the script.
+   - If the user declines: stop and inform the user that the PowerPoint cannot be generated due to an incompatible PowerShell version.
+
+### Bash Runtime Path
+
+When the active runtime is a bash terminal (Git Bash, WSL, or similar):
+
+**Never attempt to run the PowerShell script (`Invoke-PptxPipeline.ps1`) in a bash terminal. Use the bash script (`invoke-pptx-pipeline.sh`) instead.**
+
+1. Verify you are in a bash terminal by observing a prompt containing `MINGW64`, `bash`, `/bin/bash`, or a Unix-style path like `~/git/`.
+2. Before sending the build command, send `invoke-pptx-pipeline.sh --help` to the bash terminal via `send_to_terminal` and read the output with `get_terminal_output` to confirm the exact flag names. Do not infer bash flags from PowerShell parameter names — they differ.
+3. Send the build command to the bash terminal using `send_to_terminal` with the confirmed flags.
+4. Poll for completion by calling `get_terminal_output` on the same `terminalId` until the bash prompt reappears or output is stable.
+5. If no bash terminal is found, stop and inform the user: "I can't generate the PowerPoint in bash because no bash terminal is available. Please open a Git Bash or WSL terminal in VS Code and try again."
+
+### General Requirements
+
+- Always require explicit user approval before any PowerShell upgrade action.
+- Do not silently fall back between runtime paths. The shell environment you are running in determines the path: PowerShell terminal → PowerShell script; bash terminal → bash script.
+
+### Mandatory Runtime Compliance Contract
+
+The procedure defined above in **Customer Card PowerPoint Branch** is the single runtime protocol and must be executed exactly as written.
+
+Enforcement:
+
+1. The shell environment you are in determines which script path to use: PowerShell terminal uses `Invoke-PptxPipeline.ps1`; bash terminal uses `invoke-pptx-pipeline.sh`.
+2. Do not run `invoke-pptx-pipeline.sh` in a PowerShell terminal under any circumstances.
+3. Always require explicit user approval before upgrading PowerShell.
+4. If the user declines a PowerShell upgrade, stop immediately and inform the user that the PowerPoint cannot be generated due to the incompatible version.
+
+Any deviation from the defined paths is non-compliant with this workflow.
 
 Do not restate pipeline internals here. Use these sources:
 

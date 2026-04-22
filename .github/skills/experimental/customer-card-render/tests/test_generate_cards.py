@@ -88,6 +88,13 @@ def test_regression_t_s_escaped_in_rendered_yaml() -> None:
     assert "{{TITLE}}" not in rendered
 
 
+def test_yaml_escape_encodes_list_newlines() -> None:
+    module = _load_module()
+    raw = "- first item\n- second item\n- third item"
+    escaped = module.yaml_escape(raw)
+    assert escaped == "- first item\\n- second item\\n- third item"
+
+
 def test_real_section_content_flows_into_rendered_cards(tmp_path: Path) -> None:
     module = _load_module()
     canonical = tmp_path / "canonical"

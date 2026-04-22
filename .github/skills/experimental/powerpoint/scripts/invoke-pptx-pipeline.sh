@@ -65,7 +65,11 @@ initialize_python_environment() {
 }
 
 get_venv_python_path() {
-  echo "${VENV_DIR}/bin/python"
+  if [[ -f "${VENV_DIR}/Scripts/python.exe" ]]; then
+    echo "${VENV_DIR}/Scripts/python.exe"
+  else
+    echo "${VENV_DIR}/bin/python"
+  fi
 }
 
 assert_build_parameters() {

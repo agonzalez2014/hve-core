@@ -276,6 +276,7 @@ After closing, do not introduce new methods or major topics. If the user re-enga
 * Before any generation or build action, read `.github/instructions/design-thinking/dt-canonical-deck.instructions.md` in full.
 * Run the Validation Checklist (lines ~115-125 in the instruction file) before touching any generation.
 * Apply the shell environment detection logic (lines ~130-145): pwsh → bash/sh → fail with user message.
+* On Windows, when building customer cards with `invoke-pptx-pipeline.sh`, do not use `execute/runInTerminal` for the `.sh` command. Use the bash terminal protocol from `.github/instructions/design-thinking/dt-canonical-deck.instructions.md` with `execute/getTerminalOutput` and `execute/sendToTerminal`.
 * Never skip the opt-in checkpoint on first project setup.
 * Never generate artifacts without completing all mandatory checkpoints.
 * Record all offers and responses in coaching state.

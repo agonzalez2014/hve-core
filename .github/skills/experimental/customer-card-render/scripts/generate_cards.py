@@ -109,8 +109,15 @@ def template_for_type(artifact_type: str, slide_part: int = 0) -> Path:
 
 
 def yaml_escape(text: str) -> str:
-    collapsed = "\\n".join(line.rstrip() for line in text.strip().splitlines() if line.strip())
-    return collapsed.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+    # Normalize whitespace and encode line breaks as explicit \n escape sequences.
+    # Multiline quoted YAML scalars fold physical newlines to spaces, so literal
+    # \n is required to preserve list lines for the PPTX renderer.
+    lines = [line.rstrip() for line in text.strip().splitlines() if line.strip()]
+    text = "\n".join(lines)
+    # Escape backslashes first to avoid double-escaping, then quotes, then
+    # convert logical line breaks to explicit escape sequences.
+    text = text.replace("\\", "\\\\").replace('"', '\\"')
+    return text.replace("\n", "\\n")
 
 
 def _scenario_summary(body: str) -> str:
