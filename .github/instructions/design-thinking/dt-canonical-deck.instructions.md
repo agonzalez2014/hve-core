@@ -175,7 +175,12 @@ If information is missing, use `<insufficient knowledge>` and add targeted quest
 When the team requests PowerPoint output, accepts a build offer, or accepts the mandatory post-snapshot checkpoint:
 
 1. Generate `content.yaml` slide artifacts from canonical markdown using the customer-card-render skill.
-2. Build PPTX using the existing PowerPoint skill pipeline.
+2. Detect the available shell environment before invoking the build pipeline:
+   - Check whether `pwsh` is available by running `pwsh --version` or equivalent detection.
+   - If `pwsh` is available, invoke `Invoke-PptxPipeline.ps1` from the PowerPoint skill.
+   - If `pwsh` is not available but a POSIX shell (`bash`, `sh`) is available, invoke `invoke-pptx-pipeline.sh` instead.
+   - If neither `pwsh` nor a shell environment is available, stop and inform the user: "I can't generate the PowerPoint without either PowerShell 7 (pwsh) or a shell environment to run the build script. Please install PowerShell 7 or run this in a bash-compatible environment."
+3. Do not attempt the build step and do not silently fail if the required runtime is absent.
 
 Do not restate pipeline internals here. Use these sources:
 
