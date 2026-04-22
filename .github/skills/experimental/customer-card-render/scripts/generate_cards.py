@@ -27,7 +27,7 @@ TYPE_TO_TEMPLATE = {
     "Vision Statement": "vision.content.yaml",
     "Problem Statement": "problem.content.yaml",
     "Scenario": "scenario.content.yaml",
-    "Use Case": "use-case.content.yaml",
+    "Use Case": "use-case-slide1.content.yaml",
     "Persona": "persona.content.yaml",
 }
 
@@ -51,7 +51,7 @@ def configure_logging(verbose: bool) -> None:
 
 
 def parse_frontmatter(text: str) -> tuple[dict[str, str], str]:
-    match = re.match(r"^---\\s*\\n(.*?)\\n---\\s*\\n", text, re.DOTALL)
+    match = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
     if not match:
         return {}, text
 
@@ -66,20 +66,20 @@ def parse_frontmatter(text: str) -> tuple[dict[str, str], str]:
 
 def extract_section(body: str, heading: str) -> str:
     pattern = (
-        rf"(?ims)^\\s*#{{2,3}}\\s+(?:\\d+\\.?\\s*)?{re.escape(heading)}\\s*\\r?\\n"
-        r"(.*?)(?=^\\s*#{2,3}\\s+|\\Z)"
+        rf"(?ims)^\s*#{{2,3}}\s+(?:\d+\.?\s*)?{re.escape(heading)}\s*\r?\n"
+        r"(.*?)(?=^\s*#{2,3}\s+|\Z)"
     )
     match = re.search(pattern, body)
     return match.group(1).strip() if match else ""
 
 
 def extract_first_heading(body: str) -> str:
-    match = re.search(r"(?im)^\\s*#{1,3}\\s+(.+?)\\s*$", body)
+    match = re.search(r"(?im)^\s*#{1,3}\s+(.+?)\s*$", body)
     return match.group(1).strip() if match else ""
 
 
 def extract_intro_block(body: str) -> str:
-    match = re.search(r"(?ims)^\\s*##\\s+.+?\\s*\\r?\\n(.*?)(?=^\\s*#{2,3}\\s+|\\Z)", body)
+    match = re.search(r"(?ims)^\s*##\s+.+?\s*\r?\n(.*?)(?=^\s*#{2,3}\s+|\Z)", body)
     return match.group(1).strip() if match else ""
 
 
@@ -320,7 +320,7 @@ def collect_cards(canonical_root: Path) -> list[Card]:
         card = parse_card(path, canonical_root)
         if card is None:
             continue
-        body = path.read_text(encoding="utf-8").split("---\n", 2)[-1] if "---" in path.read_text(encoding="utf-8") else path.read_text(encoding="utf-8")
+        _, body = parse_frontmatter(path.read_text(encoding="utf-8"))
         expanded = expand_cards(card, body)
         cards.extend(expanded)
     
