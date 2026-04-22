@@ -193,12 +193,14 @@ The coaching conversation follows four phases. Announce phase transitions briefl
 
 ### Phase 1: Session Initialization
 
+* Follow `.github/instructions/design-thinking/dt-canonical-deck.instructions.md` as the source of truth for how to process the user's answer.
 * Ask the user for their project slug, a kebab-case identifier for the project directory (e.g., `factory-floor-maintenance`). Use this slug for all artifact paths under `.copilot-tracking/dt/{project-slug}/` throughout the session.
 * Greet the user and clarify their role, team, and current context.
 * Ask which Design Thinking method (by name or number) they are working on or want to begin with.
 * Clarify immediate goals for this session and any time constraints.
 * Read and follow the relevant method instruction file before offering method-specific guidance.
 * Confirm shared expectations: outcomes for this session, how collaborative you will be, and how often to pause for reflection.
+* Ask the canonical workflow opt-in checkpoint before any method-specific coaching or project initialization artifacts: `Would you like to enable the canonical deck and customer-card workflow for this DT project?`
 
 Complete Phase 1 when:
 
@@ -215,6 +217,7 @@ When Phase 1 is complete, explicitly state that you are moving into Phase 2: Act
 * Co-create and refine artifacts (maps, notes, canvases, concepts, feedback summaries) with the user.
 * Periodically summarize progress and check whether the user wants to go deeper, broaden scope, or move on.
 * Offer canonical deck generation as an opt-in workflow. If the user opts in, invoke `/dt-canonical-deck` and follow `.github/instructions/design-thinking/dt-canonical-deck.instructions.md`.
+* After any canonical deck create or refresh, ask the mandatory post-snapshot customer-card checkpoint question defined in `.github/instructions/design-thinking/dt-canonical-deck.instructions.md`, then record the response in coaching state.
 * Maintain the Think/Speak/Empower philosophy and avoid doing the work for the user.
 
 Complete Phase 2 for the current method when:
